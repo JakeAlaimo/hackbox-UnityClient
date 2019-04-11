@@ -27,7 +27,7 @@ public class gameStatu
 
 public class socketHandler : MonoBehaviour
 {
-    public string serverURL = "https://hackbox-backend.herokuapp.com/";
+    public string serverURL = "ws://hackbox-backend.herokuapp.com/";
 
     //public InputField uiInput = null;
     //public Button uiSend = null;
@@ -69,83 +69,73 @@ public class socketHandler : MonoBehaviour
 
     void DoOpen()
     {
-       
         if (socket == null)
         {
-            print("1111");
+            print("Initializing socket");
             socket = IO.Socket(serverURL);
-            socket.On(Socket.EVENT_CONNECT, () => {
-                print("2222");
-                if (roomcode=="-1"){
-                    print("3333");
+            socket.Once(Socket.EVENT_CONNECT, () => {
+                print("Socket connected");
+                print(roomcode);
+                if (roomcode == "-1")
+                {
                     socket.Emit("request room");
-                    socket.On("request room", (data) =>
-                    {
-                    //Debug.Log(data.GetType());
-                        roomcode = data.ToString();
-
-                        RoomData room = JsonUtility.FromJson<RoomData>(roomcode);
-                        // print("in the update:" + room.roomcode);
-                        roomcode = room.roomcode;
-                    //roomcode = JsonUtility.FromJson<string>(data);
-                    //Dictionary<string, string> data = new Dictionary<string, string>();
-
-                    });
-                    // socket.Emit("join room");
-                    socket.On("join room", (data) =>
-                    {
-                    //Debug.Log(data.GetType());
-                        print("444");
-                        jsondata = data.ToString();
-
-                        JoinResult join = JsonUtility.FromJson<JoinResult>(jsondata);
-                        // print("in the update:" + room.roomcode);
-                        if (join.joined == true){
-                            print(join.username);
-                        }else{
-                            print("fail:"+join.username);
-                        }
-                        
-                    //roomcode = JsonUtility.FromJson<string>(data);
-                    //Dictionary<string, string> data = new Dictionary<string, string>();
-
-                    });
-                    socket.On("start game", (data) =>
-                    {
-                    //Debug.Log(data.GetType());
-                        jsondata = data.ToString();
-
-                        gameStatu game = JsonUtility.FromJson<gameStatu>(jsondata);
-                        // print("in the update:" + room.roomcode);
-                        Application.LoadLevel("GameScene");
-                        // Application.loadedLevel("GameScene");
-                        
-                    //roomcode = JsonUtility.FromJson<string>(data);
-                    //Dictionary<string, string> data = new Dictionary<string, string>();
-
-                    });
                 }
             });
-             socket.On("join room", (data) =>
+            socket.On("request room", (data) =>
             {
-                print("555");
-                    //Debug.Log(data.GetType());
+            //Debug.Log(data.GetType());
+                roomcode = data.ToString();
+
+                RoomData room = JsonUtility.FromJson<RoomData>(roomcode);
+                // print("in the update:" + room.roomcode);
+                roomcode = room.roomcode;
+            //roomcode = JsonUtility.FromJson<string>(data);
+            //Dictionary<string, string> data = new Dictionary<string, string>();
+
+            });
+            // socket.Emit("join room");
+            socket.On("join room", (data) =>
+            {
+            //Debug.Log(data.GetType());
+                print("444");
                 jsondata = data.ToString();
 
                 JoinResult join = JsonUtility.FromJson<JoinResult>(jsondata);
-                        // print("in the update:" + room.roomcode);
+                // print("in the update:" + room.roomcode);
                 if (join.joined == true){
                     print(join.username);
                 }else{
                     print("fail:"+join.username);
                 }
+                
+            //roomcode = JsonUtility.FromJson<string>(data);
+            //Dictionary<string, string> data = new Dictionary<string, string>();
 
-                });
+            });
+            socket.On("start game", (data) =>
+            {
+            //Debug.Log(data.GetType());
+                jsondata = data.ToString();
 
+                gameStatu game = JsonUtility.FromJson<gameStatu>(jsondata);
+                // print("in the update:" + room.roomcode);
+                Application.LoadLevel("GameScene");
+                // Application.loadedLevel("GameScene");
+                
+            //roomcode = JsonUtility.FromJson<string>(data);
+            //Dictionary<string, string> data = new Dictionary<string, string>();
+            });
 
+            socket.On(Socket.EVENT_DISCONNECT, () => {
+                print("there was a disconnect");
+            });
+            socket.On(Socket.EVENT_RECONNECT, () => {
+                print("Reconnected");
+            });
         }
 
     }
+    
 
     void startGame(string roomcode)
     {
