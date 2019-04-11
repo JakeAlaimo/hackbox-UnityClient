@@ -1,0 +1,2 @@
+/Users/ivyzhang/study/igm582/groupProject/GameClient/obj/Debug/Assembly-CSharp.csprojAssemblyReference.cache
+/Users/ivyzhang/study/igm582/groupProject/GameClient/obj/Debug/Assembly-CSharp.csproj.CoreCompileInputs.cache
