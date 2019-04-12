@@ -1399,7 +1399,6 @@ GameObject:
   - component: {fileID: 1262527911}
   - component: {fileID: 1262527914}
   - component: {fileID: 1262527913}
-  - component: {fileID: 1262527912}
   m_Layer: 5
   m_Name: waitingROOM
   m_TagString: Untagged
@@ -1430,20 +1429,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 7}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1262527912
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1262527910}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a58468bbdd6f243908bff2a1e4f26bb3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  serverURL: https://hackbox-backend.herokuapp.com/
-  code: {fileID: 1098757785}
 --- !u!114 &1262527913
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2082,6 +2067,7 @@ GameObject:
   - component: {fileID: 2061069696}
   - component: {fileID: 2061069695}
   - component: {fileID: 2061069694}
+  - component: {fileID: 2061069698}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -2171,3 +2157,17 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &2061069698
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2061069693}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a58468bbdd6f243908bff2a1e4f26bb3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  serverURL: https://hackbox-backend.herokuapp.com/
+  code: {fileID: 1098757785}
