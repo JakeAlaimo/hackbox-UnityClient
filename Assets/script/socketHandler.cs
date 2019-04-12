@@ -9,7 +9,8 @@ using Newtonsoft.Json;
 public class RoomData
 {
     public string roomcode;
-    public List<string> playerList = new List<string>();
+
+    
 };
 public class JoinResult
 {
@@ -22,6 +23,7 @@ public class gameStatu
     public string category;
     public string player1Name;
     public string player2Name;
+    public string Timecount;
 };
 
 
@@ -38,8 +40,14 @@ public class socketHandler : MonoBehaviour
     private string roomcode;
     public Text code;
     private string jsondata;
-
-
+    GameObject waitingPanel;
+    GameObject gameRoom;
+    gameStatu stat;
+    int playerCount;
+    JoinResult join;
+    Text onlinePlayer;
+    Text timer;
+    List<string> playerList = new List<string>();
 
     void Awake()
     {
@@ -54,6 +62,14 @@ public class socketHandler : MonoBehaviour
     void Start()
     {
         roomcode = "-1";
+        playerCount = 0;
+        //print("playerCount:" + playerList.Count);
+
+        stat = new gameStatu();
+        stat.Timecount = "-1";
+        onlinePlayer = GameObject.Find("onlinePlayer").GetComponent<Text>();
+        timer = GameObject.Find("Timer").GetComponent<Text>();
+        print("player: "+onlinePlayer.text);
         DoOpen();
 
 
@@ -64,7 +80,26 @@ public class socketHandler : MonoBehaviour
         {
             code.text = roomcode;
         }
-        
+
+        //print("playercount:" + playerCount);
+        //print("playerLisr.Count:" + playerList.Count);
+        if (playerCount < playerList.Count)
+        {
+            //print("1111");
+            //Text onlinePlayer = GameObject.Find("onlinePlayer").GetComponent<Text>();
+            onlinePlayer.text = onlinePlayer.text +"  "+ join.username;
+            playerCount = playerList.Count;
+        }
+        //if (stat.Timecount != "-1")
+        //{
+        //    //print("22222");
+        //    timer.text = "Timer: " + stat.Timecount;
+        //}
+       
+        //print(timer.text);
+
+
+
     }
 
     void DoOpen()
@@ -97,14 +132,17 @@ public class socketHandler : MonoBehaviour
             socket.On("join room", (data) =>
             {
             //Debug.Log(data.GetType());
-                print("444");
+                //print("444");
                 jsondata = data.ToString();
 
-                JoinResult join = JsonUtility.FromJson<JoinResult>(jsondata);
+                join = JsonUtility.FromJson<JoinResult>(jsondata);
                 // print("in the update:" + room.roomcode);
                 if (join.joined == true){
                     print(join.username);
-                }else{
+                    playerList.Add(join.username);
+                    //print("playerCount:" + playerList.Count);
+                }
+                else{
                     print("fail:"+join.username);
                 }
                 
@@ -114,18 +152,44 @@ public class socketHandler : MonoBehaviour
             });
             socket.On("start game", (data) =>
             {
-            //Debug.Log(data.GetType());
+                //Debug.Log(data.GetType()); 
+                print("game start");
                 jsondata = data.ToString();
 
-                gameStatu game = JsonUtility.FromJson<gameStatu>(jsondata);
+                stat = JsonUtility.FromJson<gameStatu>(jsondata);
                 // print("in the update:" + room.roomcode);
-                Application.LoadLevel("GameScene");
+                //Application.LoadLevel("GameScene");
                 // Application.loadedLevel("GameScene");
-                
-            //roomcode = JsonUtility.FromJson<string>(data);
-            //Dictionary<string, string> data = new Dictionary<string, string>();
-            });
 
+                waitingPanel = GameObject.Find("waitingROOM");
+                waitingPanel.SetActive(false);
+                print("player1:"+stat.player1Name);
+                print("player2:" + stat.player2Name);
+                //roomcode = JsonUtility.FromJson<string>(data);
+                //Dictionary<string, string> data = new Dictionary<string, string>();
+            });
+            socket.On("time changed", (data) =>
+            {
+                //Debug.Log(data.GetType());
+                print("In time changed event");
+                jsondata = data.ToString();
+
+                stat = JsonUtility.FromJson<gameStatu>(jsondata);
+                // print("in the update:" + room.roomcode);
+                if (stat.Timecount != "-1")
+                {
+
+                    print(stat.Timecount);
+                }
+                else
+                {
+                    print("fail:" + stat.Timecount);
+                }
+
+                //roomcode = JsonUtility.FromJson<string>(data);
+                //Dictionary<string, string> data = new Dictionary<string, string>();
+
+            });
             socket.On(Socket.EVENT_DISCONNECT, () => {
                 print("there was a disconnect");
             });
@@ -135,38 +199,6 @@ public class socketHandler : MonoBehaviour
         }
 
     }
-    
-
-    void startGame(string roomcode)
-    {
-        if (socket != null)
-        {
-           
-            socket.On(Socket.EVENT_CONNECT, () => {
-                socket.Emit("start game");
-                socket.On("start game", (data) =>
-                {
-                    //Debug.Log(data.GetType());
-
-                    roomcode = data.ToString();
-
-                    if (roomcode != "-1")
-                    {
-
-
-                    }
-                    //roomcode = JsonUtility.FromJson<string>(data);
-                    //Dictionary<string, string> data = new Dictionary<string, string>();
-
-                });
-
-            });
-
-
-
-        }
-    }
-
 
 
 
