@@ -70,6 +70,9 @@ public class socketHandler : MonoBehaviour
         onlinePlayer = GameObject.Find("onlinePlayer").GetComponent<Text>();
         timer = GameObject.Find("Timer").GetComponent<Text>();
         print("player: "+onlinePlayer.text);
+
+        //waitingPanel = GameObject.Find("waitingROOM");
+        //waitingPanel.SetActive(false);
         DoOpen();
 
 
@@ -155,11 +158,14 @@ public class socketHandler : MonoBehaviour
                 //Debug.Log(data.GetType()); 
                 print("game start");
                 jsondata = data.ToString();
-
+                print("before parse json");
                 stat = JsonUtility.FromJson<gameStatu>(jsondata);
                 // print("in the update:" + room.roomcode);
                 //Application.LoadLevel("GameScene");
                 // Application.loadedLevel("GameScene");
+                print("stat:"+ stat.category);
+                print("player1_before:" + stat.player1Name);
+                print("player2_before:" + stat.player2Name);
 
                 waitingPanel = GameObject.Find("waitingROOM");
                 waitingPanel.SetActive(false);
@@ -190,6 +196,11 @@ public class socketHandler : MonoBehaviour
                 //Dictionary<string, string> data = new Dictionary<string, string>();
 
             });
+            socket.On("game_error", (data) =>
+            {
+                print(data);
+            });
+
             socket.On(Socket.EVENT_DISCONNECT, () => {
                 print("there was a disconnect");
             });
