@@ -52,22 +52,14 @@ public class socketHandler : MonoBehaviour
 
         stat = new GameStatus();
         stat.Timecount = "-1";
-        onlinePlayer = GameObject.Find("onlinePlayer").GetComponent<Text>();
         timer = GameObject.Find("Timer").GetComponent<Text>();
-        print("player: "+onlinePlayer.text);
 
         PrepareSocket();
     }
 
     void Update()
     {
-        //if (playerCount < playerList.Count)
-        //{
-        //    //print("1111");
-        //    //Text onlinePlayer = GameObject.Find("onlinePlayer").GetComponent<Text>();
-        //    onlinePlayer.text = onlinePlayer.text +"  "+ join.username;
-        //    playerCount = playerList.Count;
-        //}
+
         //if (stat.Timecount != "-1")
         //{
         //    //print("22222");
@@ -126,24 +118,19 @@ public class socketHandler : MonoBehaviour
                 }
             });
 
+            //server has started an instance of the game. Store and display the category and players
             socket.On("start game", (data) =>
             {
-                //Debug.Log(data.GetType()); 
-                print("game start");
                 jsondata = data.ToString();
-                print("before parse json");
-                stat = JsonUtility.FromJson<GameStatus>(jsondata);
-                // print("in the update:" + room.roomcode);
-                //Application.LoadLevel("GameScene");
-                // Application.loadedLevel("GameScene");
-                print("stat:"+ stat.category);
-                print("player1_before:" + stat.player1Name);
-                print("player2_before:" + stat.player2Name);
 
-                waitingPanel = GameObject.Find("waitingROOM");
-                waitingPanel.SetActive(false);
-                print("player1:"+stat.player1Name);
-                print("player2:" + stat.player2Name);
+                GameStatus status = JsonUtility.FromJson<GameStatus>(jsondata);
+
+                print("prompt: "+ status.category);
+                print("player1: " + status.player1Name);
+                print("player2: " + status.player2Name);
+
+                //update the game state to show the correct screen
+                GameManager.StartGame(status.player1Name, status.player2Name, status.category);
             });
 
             socket.On("time changed", (data) =>
