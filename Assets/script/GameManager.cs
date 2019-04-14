@@ -12,14 +12,15 @@ public class GameManager : MonoBehaviour {
     //game-state information:
     static string roomCode = "";
     static List<string> playerNames;
-    static float gameTime = 0;
+    static string gameTime = "";
 
     static string competingPlayer1 = "";
     static string competingPlayer2 = "";
     static string prompt = "";
 
-    static float votePercent = 0.5f;
+    static string[] answers = { "", ""};
 
+    static float[] voteSplit = { 0.5f};
 
     // Use this for initialization
     void Start () {
@@ -92,11 +93,57 @@ public class GameManager : MonoBehaviour {
         //now tell the main thread to switch to the game screen and populate its text fields
         AddCommand(() => {
 
-            GameObject.Find("waitingROOM").SetActive(false);
+            if(GameObject.Find("waitingROOM"))
+                GameObject.Find("waitingROOM").SetActive(false);
+
+            GameObject.Find("Canvas").transform.Find("winner").gameObject.SetActive(false);
 
             GameObject.Find("Player1username").GetComponent<Text>().text = competingPlayer1;
             GameObject.Find("Player2username").GetComponent<Text>().text = competingPlayer2;
             GameObject.Find("category").GetComponent<Text>().text = prompt;
+        });
+    }
+
+    public static void DisplayAnswer(int player, string answer)
+    {
+        lock (answers[player]) //only update one answer at a time, and only read when done updating
+        {
+            answers[player] = answer;
+        }
+
+        //now tell the main thread to switch to the game screen and populate its text fields
+        AddCommand(() => { GameObject.Find("answer" + (player + 1)).GetComponent<Text>().text = answers[player]; });
+    }
+
+    public static void UpdateTime(int time)
+    {
+        lock (gameTime)
+        {
+            gameTime = time.ToString();
+        }
+
+        //now tell the main thread to display the correct time
+        AddCommand(() => { GameObject.Find("Timer").GetComponent<Text>().text = gameTime; });
+    }
+
+    public static void UpdateVote(float percent)
+    {
+        lock (voteSplit)
+        {
+            voteSplit[0] = percent;
+        }
+
+        //now tell the main thread to reposition the vote indicator
+        AddCommand(() => { GameObject.Find("VoteIndicator").GetComponent<RectTransform>().anchoredPosition = new Vector3(Mathf.Lerp(-420f, 420f, percent), 176f, 0); });
+    }
+
+    public static void EndGame()
+    {
+        //tell the main thread to display the winner
+        AddCommand(() => {
+
+            GameObject.Find("Canvas").transform.Find("winner").gameObject.SetActive(true);
+            GameObject.Find("result").GetComponent<Text>().text = (voteSplit[0] <= 0.5f) ? competingPlayer1 : competingPlayer2 + " has won!";
         });
     }
 }

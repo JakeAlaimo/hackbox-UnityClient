@@ -6,23 +6,38 @@ using Quobject.SocketIoClientDotNet.Client;
 using Newtonsoft.Json;
 
 
-public class RoomData
+public class RequestRoom
 {
     public string roomcode;
 };
 
-public class JoinResult
+public class JoinRoom
 {
     public bool joined;
     public string username;
     public string failReason;
 };
-public class GameStatus
+public class StartGame
 {
     public string category;
     public string player1Name;
     public string player2Name;
-    public string Timecount;
+};
+
+public class EnterSubmission
+{
+    public int player;
+    public string submission;
+};
+
+public class TimeChanged
+{
+    public int time;
+};
+
+public class Vote
+{
+    public float percentage;
 };
 
 
@@ -33,43 +48,11 @@ public class socketHandler : MonoBehaviour
     protected Socket socket = null;
     private string roomcode;
 
-    public Text code;
-    private string jsondata;
-
-    GameObject waitingPanel;
-    GameObject gameRoom;
-
-    GameStatus stat;
-
-    Text onlinePlayer;
-    Text timer;
-
-
     // Use this for initialization
     void Start()
     {
         roomcode = "-1";
-
-        stat = new GameStatus();
-        stat.Timecount = "-1";
-        timer = GameObject.Find("Timer").GetComponent<Text>();
-
         PrepareSocket();
-    }
-
-    void Update()
-    {
-
-        //if (stat.Timecount != "-1")
-        //{
-        //    //print("22222");
-        //    timer.text = "Timer: " + stat.Timecount;
-        //}
-       
-        //print(timer.text);
-
-
-
     }
 
     void PrepareSocket()
@@ -90,10 +73,8 @@ public class socketHandler : MonoBehaviour
             //server created the room and sent the code back. Store and display the code
             socket.On("request room", (data) =>
             {
-                jsondata = data.ToString();
-
                 //parse the message received from the socket
-                RoomData room = JsonUtility.FromJson<RoomData>(jsondata);
+                RequestRoom room = JsonUtility.FromJson<RequestRoom>(data.ToString());
                 roomcode = room.roomcode;
 
                 //update the roomcode in the UI
@@ -103,9 +84,7 @@ public class socketHandler : MonoBehaviour
             //server indicated that a player joined the room. Store and display the new player in the player list
             socket.On("join room", (data) =>
             {
-                jsondata = data.ToString();
-
-                JoinResult join = JsonUtility.FromJson<JoinResult>(jsondata);
+                JoinRoom join = JsonUtility.FromJson<JoinRoom>(data.ToString());
 
                 if (join.joined == true) //add the user to the player list
                 {
@@ -121,36 +100,56 @@ public class socketHandler : MonoBehaviour
             //server has started an instance of the game. Store and display the category and players
             socket.On("start game", (data) =>
             {
-                jsondata = data.ToString();
+                StartGame start = JsonUtility.FromJson<StartGame>(data.ToString());
 
-                GameStatus status = JsonUtility.FromJson<GameStatus>(jsondata);
+                print("prompt: "+ start.category);
+                print("player1: " + start.player1Name);
+                print("player2: " + start.player2Name);
 
-                print("prompt: "+ status.category);
-                print("player1: " + status.player1Name);
-                print("player2: " + status.player2Name);
+                //clear any previous answers + reset vote indicator
+                GameManager.DisplayAnswer(0, "");
+                GameManager.DisplayAnswer(1, "");
+                GameManager.UpdateVote(0.5f);
 
                 //update the game state to show the correct screen
-                GameManager.StartGame(status.player1Name, status.player2Name, status.category);
+                GameManager.StartGame(start.player1Name, start.player2Name, start.category);
             });
 
+            //server has relayed a submission from a player. Display it on the screen
+            socket.On("enter submission", (data) =>
+            {
+                EnterSubmission submission = JsonUtility.FromJson<EnterSubmission>(data.ToString());
+
+                print("player " + submission.player + " submission: " + submission.submission);
+
+
+                //update the game state to show the correct screen
+                GameManager.DisplayAnswer(submission.player, submission.submission);
+            });
+
+            //server has caught another vote. update the percent shown on screen
+            socket.On("vote", (data) =>
+            {
+                Vote vote = JsonUtility.FromJson<Vote>(data.ToString());
+
+                //display the correct vote percent
+                GameManager.UpdateVote(vote.percentage);
+            });
+
+            //server has sent timer updates. Display them
             socket.On("time changed", (data) =>
             {
-                //Debug.Log(data.GetType());
-                print("In time changed event");
-                jsondata = data.ToString();
+                TimeChanged tc = JsonUtility.FromJson<TimeChanged>(data.ToString());
 
-                stat = JsonUtility.FromJson<GameStatus>(jsondata);
-                // print("in the update:" + room.roomcode);
-                if (stat.Timecount != "-1")
-                {
+                //display the correct time
+                GameManager.UpdateTime(tc.time);
+            });
 
-                    print(stat.Timecount);
-                }
-                else
-                {
-                    print("fail:" + stat.Timecount);
-                }
-
+            //the server has indicated that the round has ended. Display the winner.
+            socket.On("timeout", (data) =>
+            {
+                //display the correct time
+                GameManager.EndGame();
             });
 
             socket.On("game_error", (data) =>
