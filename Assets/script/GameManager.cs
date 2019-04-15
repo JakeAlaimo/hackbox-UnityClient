@@ -78,7 +78,7 @@ public class GameManager : MonoBehaviour {
         }
 
         //now tell the main thread to add the player's name to the player display
-        AddCommand(() => { GameObject.Find("onlinePlayers").GetComponent<Text>().text += " " + playerName; });
+        AddCommand(() => { GameObject.Find("onlinePlayers").GetComponent<Text>().text += " " + playerName + ","; });
     }
 
     public static void StartGame(string p1, string p2, string category)
