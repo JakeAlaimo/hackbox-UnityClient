@@ -137,13 +137,13 @@ public class GameManager : MonoBehaviour {
         AddCommand(() => { GameObject.Find("VoteIndicator").GetComponent<RectTransform>().anchoredPosition = new Vector3(Mathf.Lerp(-420f, 420f, percent), 176f, 0); });
     }
 
-    public static void EndGame()
+    public static void EndGame(int winner)
     {
         //tell the main thread to display the winner
         AddCommand(() => {
 
             GameObject.Find("Canvas").transform.Find("winner").gameObject.SetActive(true);
-            GameObject.Find("result").GetComponent<Text>().text = (voteSplit[0] <= 0.5f) ? competingPlayer1 : competingPlayer2 + " has won!";
+            GameObject.Find("result").GetComponent<Text>().text = winner == 0 ? competingPlayer1 : competingPlayer2 + " has won!";
         });
     }
 }

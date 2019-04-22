@@ -40,6 +40,11 @@ public class Vote
     public float percentage;
 };
 
+public class Timeout
+{
+    public int winner;
+};
+
 
 public class socketHandler : MonoBehaviour
 {
@@ -148,8 +153,9 @@ public class socketHandler : MonoBehaviour
             //the server has indicated that the round has ended. Display the winner.
             socket.On("timeout", (data) =>
             {
+                Timeout timeout = JsonUtility.FromJson<Timeout>(data.ToString());
                 //display the correct time
-                GameManager.EndGame();
+                GameManager.EndGame(timeout.winner);
             });
 
             socket.On("game_error", (data) =>
