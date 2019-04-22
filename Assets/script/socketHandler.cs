@@ -60,6 +60,20 @@ public class socketHandler : MonoBehaviour
         PrepareSocket();
     }
 
+    /// <summary>
+    /// Invoked when the game is over. We'll destroy the room when this happens
+    /// </summary>
+    void OnApplicationQuit()
+    {
+        if (socket != null) 
+        {
+            RequestRoom args = new RequestRoom();
+            args.roomcode = roomcode;
+            string strArgs = JsonUtility.ToJson(args);
+            socket.Emit("close room", strArgs);
+        }    
+    }    
+
     void PrepareSocket()
     {
         if (socket == null)
