@@ -74,6 +74,17 @@ public class socketHandler : MonoBehaviour
         }    
     }    
 
+    public void EmitStartGame()
+    {
+        if (socket != null)
+        {
+            RequestRoom args = new RequestRoom();
+            args.roomcode = roomcode;
+            string stringArgs = JsonUtility.ToJson(args);
+            socket.Emit("start game", stringArgs);
+        }
+    }
+
     void PrepareSocket()
     {
         if (socket == null)
@@ -114,6 +125,10 @@ public class socketHandler : MonoBehaviour
                 {
                     print("fail:"+join.username);
                 }
+            });
+
+            socket.On("everybody in", () => {
+                GameManager.DisplayTutorial(this);
             });
 
             //server has started an instance of the game. Store and display the category and players

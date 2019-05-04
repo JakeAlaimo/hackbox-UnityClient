@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Playables;
 using UnityEngine.UI;
 
 public delegate void Command();
@@ -79,6 +80,21 @@ public class GameManager : MonoBehaviour {
 
         //now tell the main thread to add the player's name to the player display
         AddCommand(() => { GameObject.Find("onlinePlayers").GetComponent<Text>().text += " " + playerName + ","; });
+    }
+
+    /// <summary>
+    /// Displays the tutorial timeline animation sequence and fires off start game when finished
+    /// </summary>
+    public static void DisplayTutorial(socketHandler handler)
+    {
+        AddCommand(() => {
+            GameObject.Find("Canvas").transform.Find("tutorial").gameObject.SetActive(true);
+            PlayableDirector director = GameObject.Find("tutorialTimeline").GetComponent<PlayableDirector>();
+            director.Play();
+            director.stopped += (dir) => {
+                handler.EmitStartGame();
+            };
+        });
     }
 
     public static void StartGame(string p1, string p2, string category)
