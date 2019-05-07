@@ -127,8 +127,12 @@ public class GameManager : MonoBehaviour {
             answers[player] = answer;
         }
 
-        //now tell the main thread to switch to the game screen and populate its text fields
-        AddCommand(() => { GameObject.Find("answer" + (player + 1)).GetComponent<Text>().text = answers[player]; });
+        //now tell the main thread to switch to the game screen and populate its text fields        
+        AddCommand(() => { 
+            GameObject tempAns = GameObject.Find("answer" + (player + 1));
+            print(tempAns);
+            GameObject.Find("answer" + (player + 1)).GetComponent<Text>().text = answers[player]; 
+        });
     }
 
     public static void UpdateTime(int time)
@@ -159,7 +163,7 @@ public class GameManager : MonoBehaviour {
         AddCommand(() => {
 
             GameObject.Find("Canvas").transform.Find("winner").gameObject.SetActive(true);
-            GameObject.Find("result").GetComponent<Text>().text = winner == 0 ? competingPlayer1 : competingPlayer2 + " has won!";
+            GameObject.Find("result").GetComponent<Text>().text = (winner == 0 ? competingPlayer1 : competingPlayer2) + " has won !";
         });
     }
 }
