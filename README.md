@@ -8,7 +8,7 @@ Hackbox is a replication of Jackbox communication methods in the form of a categ
 
 ## Trying out the application
 If you'd like to play this game, take a look at the following steps.
-1. [Clone the backend repo](https://github.com/dan-singer/hackbox-backend) and build it with Unity.
+1. [Clone this repo](https://github.com/lzhangivy/hackbox-UnityClient) and build it with Unity.
 2. Launch the built application.
 3. Using any web browser, head to [this website](http://www.dansinger.me/hackbox-web-client/) and enter the roomcode displayed on the Unity client.
 
