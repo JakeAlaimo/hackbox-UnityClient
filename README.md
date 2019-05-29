@@ -1,6 +1,5 @@
 # hackbox-UnityClient
-# Hackbox Backend
-This is the Hackbox backend built with socket.io. It's only a mirror of what is on heroku, therefore, pushing to this will have no effect on the backend.
+This is the Hackbox UnityClient built with socket.io. 
 
 ![screenshot](mockup.png)
 
